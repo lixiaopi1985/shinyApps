@@ -1,0 +1,12 @@
+name: crop_shiny_app_R
+title: crop_shiny_app_R
+username:
+account: xiaoping-shinyapps
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 346594
+bundleId: 1395543
+url: https://xiaoping-shinyapps.shinyapps.io/crop_shiny_app_R/
+when: 1527452135.89686
+asMultiple: FALSE
+asStatic: FALSE
