@@ -16,11 +16,6 @@ library(ggrepel)
 library("ROAuth")
 
 
-consumer_key =  '7A9lTiNXo97un1FdMgkMBSP8M'
-consumer_secret = '9u347yoYAbfYBV5N0psqHbkyQFLbfOzrYrJWTrKQJQ4peZW0JR'
-access_token = '977251715664642048-4nZqbxOt4YJjC7FH4wcMT5s0UqSKxsk'
-access_secret = 'UwKGAdbRFEnzpQOjn5eReYzETN1T43h9WJ6L1wYuP8881'
-
 
 
 retrieve.twitter.user <- function(consumer_key, consumer_secret, access_token, access_secret, userName, ntweets, inclRt = TRUE){
@@ -178,19 +173,6 @@ retrieve.twitter.DA = function(mx, yr = "2017", mn = "9"){
   
   print(outmap)
 }
-
-
-tw = retrieve.twitter.user(consumer_key, consumer_secret, access_token, access_secret, '@corndisease', 456)
-
-tw_df = tw
-
-mx = retrieve.twitter.term(tw_df, "Corn_diseases.lst")
-
-head(mx)
-
-retrieve.twitter.DA(mx)
-head(mx)
-tail(mx)
 
 
 
