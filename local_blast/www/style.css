@@ -1,0 +1,69 @@
+div.busy { 
+  position:absolute;
+  top: 40%;
+  left: 50%;
+  margin-top: -100px;
+  margin-left: -50px;
+  display:none;
+  background: rgba(230, 230, 230, .8);
+  text-align: center;
+  padding-top: 20px;
+  padding-left: 30px;
+  padding-bottom: 40px;
+  padding-right: 30px;
+  border-radius: 5px;
+}
+
+/*
+div.main {
+    display: inline-block;
+    white-space: nowrap;
+    vertical-align: top;
+}
+*/
+
+div.program, div.DB, div.eval {
+    display: inline-block;
+}
+
+div.Btn {
+    display: inline-block;
+}
+
+/*div.result_block {
+    display: inline-block;
+    flex:1;
+}*/
+
+
+div.footer {
+    position:fixed;
+    bottom: 0;
+    right:0;
+    width: 100%;
+    color:orangered;
+    text-align: right;
+}
+
+div.radiobutton {
+    color: #0B8;
+    cursor: pointer;
+}
+
+
+
+hr.h-line {
+    color: darkorange;
+}
+
+/*butons*/
+.butt {
+    -webkit-transition-duration: 0.5s;
+    transition-duration: 0.5s;
+    color: 000000;
+}
+
+.butt:hover {
+    color: 000000;
+    background-color: #FF4500;
+}

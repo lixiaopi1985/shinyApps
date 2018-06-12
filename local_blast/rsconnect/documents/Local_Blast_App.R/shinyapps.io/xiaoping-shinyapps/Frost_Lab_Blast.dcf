@@ -1,0 +1,13 @@
+name: Frost_Lab_Blast
+title: Frost_Lab_Blast
+username:
+account: xiaoping-shinyapps
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 357066
+bundleId: 1417283
+url: https://xiaoping-shinyapps.shinyapps.io/Frost_Lab_Blast/
+when: 1528395182.38341
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: _Rhistory
