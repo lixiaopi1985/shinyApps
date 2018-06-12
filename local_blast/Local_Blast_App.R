@@ -32,12 +32,14 @@ ui <- fluidPage(
     )),
   
 
+
   # mainPanel (((((((((((((((((((((((((
   div(
     class="main",
     mainPanel(
       tags$img(src='banner.png', height = 90, width=800),
       #tags$p("Contains Oregon Plant Species trnL database and Starky Plant Species ITS2 database"),
+      
       br(),br(),
     
       textAreaInput(
@@ -104,7 +106,7 @@ ui <- fluidPage(
     
     textInput(
       inputId = 'saveName',
-      label = 'Save file Name As:',
+      label = 'Save Result As:',
       value = '',
       placeholder = 'blastoutput'
     ),
@@ -160,17 +162,18 @@ ui <- fluidPage(
     class = "result_block")),
       
     div(
+      class = "align",
       mainPanel(        
         h4("Alignment:"), 
-        tableOutput('clicked'),
-        verbatimTextOutput('alignment'), 
-        width = 6)
+        #tableOutput('clicked'),
+        verbatimTextOutput('alignment'),
+        width = 4)
       ),
       
     br(),br(),br(),
     div(
       class = 'footer',
-      HTML("Author: Xiaoping Li&emsp;lixiaopi@oregonstate.edu&emsp;2018-6-11")
+      HTML("Author: Xiaoping Li&emsp;lixiaopi@oregonstate.edu&emsp;updated 2018-6-11")
       )
 )
 
@@ -335,9 +338,9 @@ server <- function(input, output, session){
   # show results
   # place holder for alignments
   #   
-  output$clicked <- renderTable({
+  output$alignment <- renderText({
     
-    reset <- reactiveValues(sel = "") # select single rows
+    #reset <- reactiveValues(sel = "") # select single rows
     
     if(is.null(input$Blast_Results_rows_selected)){
     } else {
@@ -360,14 +363,20 @@ server <- function(input, output, session){
         top <- splits[[1]][i]
         midline <-  splits[[2]][i]
         bottom <- splits[[3]][i]
-        midline <- gsub("(\\|)", "\\1 ", gsub(" ", "      ", midline))
         
-        rbind(top, midline, bottom)
+        
+        top2 = paste0("Q ", top, "\n")
+        mid2 = paste0("M ", midline, "\n")
+        bottom2 = paste0("S ", bottom, "\n\n")
+        
+        rbind(top2, mid2, bottom2)
        })
-       
-       as.data.frame(unlist(splits_out))
+        unlist(splits_out)
     }
-  }, server = TRUE) # TRUE if data is big
+  })
+
+
+  # TRUE if data is big
   
     ################ download output #############
     

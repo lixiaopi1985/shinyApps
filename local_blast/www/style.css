@@ -30,6 +30,10 @@ div.Btn {
     display: inline-block;
 }
 
+div.align{
+    background-color: grey;
+    text-align: left;
+}
 /*div.result_block {
     display: inline-block;
     flex:1;
