@@ -5,9 +5,9 @@ account: xiaoping-shinyapps
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 357078
-bundleId: 1424537
+bundleId: 1428449
 url: https://xiaoping-shinyapps.shinyapps.io/Frost_Lab_Blast_APP/
-when: 1528794510.94854
+when: 1528937131.68377
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: _Rhistory

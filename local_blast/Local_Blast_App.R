@@ -8,17 +8,63 @@ library(stringr)
 options(repos = BiocInstaller::biocinstallRepos())
 getOption("repos")
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+outputEval <- function(fa){
+  
+  fasta = readLines(fa)
+  # print(paste("check results:", checkFasta(fasta)))
+  
+  # if it is null, pass the test
+  if(length(checkFasta(fasta)) == 0){
+    return(NULL)
+  }
+  
+  # if it is "NOINPUT", FALSE will cause validate() fail silently
+  if(checkFasta(fasta) == "NOINPUT"){
+    return(FALSE)
+  }
+
+  # if it is not a right format, return character strings
+  if(checkFasta(fasta) == FALSE){
+    return("Please input valid fasta format")
+  }
+  
+}
+
+checkFasta <- function(fasta){
+  
+  # empty input
+  if(length(fasta) == 0){
+    return("NOINPUT")
+  }
+  
+  # starts with > but not a sequence file (not containing A C G T N)
+  if(startsWith(fasta[1], ">")){
+    
+    comp = unique(unlist(strsplit(paste(fasta[2:length(fasta)], collapse = ""), "")))
+    all_symbols = c("A", "T", "C", "G", "N")
+    if(sum(comp %in% all_symbols) != length(comp)){
+      return(FALSE)
+    } else {
+      return(NULL)
+    }
+  } 
+  
+  # not starts with >, but it is a sequence file (contains only ACGTN)
+  if(startsWith(fasta[1], ">") == F){
+    comp = unique(unlist(strsplit(paste(fasta, collapse = ""), "")))
+    all_symbols = c("A", "T", "C", "G", "N")
+    if(sum(comp %in% all_symbols) != length(comp)){
+      return(FALSE)
+    } else {
+      return(NULL)
+    }
+  }
+
+}
 
 
-# checkFasta <- function(fa){
-#   fasta = readLines(fa)
-#   if(!startsWith(fasta[1], '>') & !setequal(unique(unlist(str_split(toupper(fasta[2]), ""))), c("A", "T", "C", "G", "N"))){
-#     return('Not a Valid Fasta File')
-#   } else {
-#     return(NULL)
-#   }
-# }
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ui <- fluidPage(
   
   # tag 
@@ -28,7 +74,12 @@ ui <- fluidPage(
                 type = "text/css",
                 href = "style.css"),
       tags$script(type = "text/javascript",
-                  src = "busy.js")
+                  src = "busy.js"),
+      tags$style(HTML("
+                      .shiny-output-error-validation{
+                      color: red;
+                      }
+                      "))
     )),
   
 
@@ -65,7 +116,7 @@ ui <- fluidPage(
       selectInput(
         inputId = 'program', 
         label = 'Program',
-        choices = c('blastn', 'tblastn'), 
+        choices = c('blastn', 'blastp', 'blastx', 'tblastx', 'tblastn'), 
         width = "80px",
         selected = 'blastn',
         selectize = FALSE
@@ -183,7 +234,7 @@ ui <- fluidPage(
 server <- function(input, output, session){
   
 
-  
+  #options(shiny.sanitizer.errors = TRUE)
   # databaseInput <- reactive({
   #   switch (input$db,
   #           "Oregon Local Plant trnL" = trnl,
@@ -191,9 +242,46 @@ server <- function(input, output, session){
   #           "Phytophthora ITS" = phyto
   #   )
   # })
+  # gather input and set up temp file
+  seqfile <- reactive({
+    
+    tmp = tempfile(fileext = ".fa")
+    
+    if(nchar(input$seq == 0)){
+      
+      file1 = input$upload
+      if(is.null(file1)){
+      } else {
+        
+        line = readLines(file1$datapath)
+        
+        if(startsWith(line[1], ">")){
+          writeLines(line, tmp)
+        } else {
+          writeLines(paste0(">Query\n", line), tmp)
+        }
+      }
+      
+    } 
+    
+    if(nchar(input$seq > 0)){
+      
+      query = input$seq
+      if(startsWith(query, ">")){
+        writeLines(query, tmp)
+      } else {
+        writeLines(paste0(">Query\n", query), tmp)
+      }
+    }
+    
+    validate(outputEval(tmp))
+    
+    tmp
+    
+  })
+  
   
 
-  
   
   # button blastButton
   blastresults <- eventReactive(
@@ -218,42 +306,8 @@ server <- function(input, output, session){
       }
       
       
-
-
-      # gather input and set up temp file
-      tmp = tempfile(fileext = ".fa")
-  
       
-      if(nchar(input$seq) == 0){
-        
-          file1 = input$upload
-          if(is.null(file1)){
-            return(NULL)
-          }
-          
-          line = readLines(file1$datapath)
-          
-          if(startsWith(line[1], ">")){
-            writeLines(line, tmp)
-          } else {
-            writeLines(paste0(">Query\n", line), tmp)
-          }
-        
 
-        
-      } else if(nchar(input$seq > 0)){
-      
-        query = input$seq
-        
-
-        if(startsWith(query, ">")){
-          writeLines(query, tmp)
-        } else {
-          writeLines(paste0(">Query\n", query), tmp)
-        }
-      }
-      
-      
       # calls the blast
       # set permission error anwser here:
       # https://groups.google.com/forum/#!topic/shinyapps-users/sHSm3Of_3Og
@@ -265,11 +319,13 @@ server <- function(input, output, session){
       #   }
       #   })
       
-      
+
       system("chmod -R 777 ncbi-blast-2.7.1+/bin/")
       # check fasta input
 
-      datas = system(paste0("ncbi-blast-2.7.1+/bin/", input$program, " -query ", tmp, " -db ", db, " -dust no -evalue ", input$eval, " -outfmt 5", " -max_hsps 1 -max_target_seqs 10 ", remote), intern = T)
+      
+
+      datas = system(paste0("ncbi-blast-2.7.1+/bin/", input$program, " -query ", seqfile(), " -db ", db, " -dust no -evalue ", input$eval, " -outfmt 5", " -max_hsps 1 -max_target_seqs 10 ", remote), intern = T)
 
       
       xmlParse(datas)
@@ -288,7 +344,7 @@ server <- function(input, output, session){
   parseResults = reactive({
     
     if(is.null(blastresults())){
-        cat("No results")
+        data.frame(results = c("No results"), stringsAsFactors = F)
     } else {
       
             #if(input$outfmt == 'xml'){
@@ -325,9 +381,9 @@ server <- function(input, output, session){
   })
 
   # output results to data table
-  output$Blast_Results = renderDataTable({
+  output$Blast_Results = renderDataTable( selection = 'single',{
     if(is.null(parseResults())){
-      cat('No Results')
+      data.frame(results = c('No Results'), stringsAsFactors = F)
     } else {
       parseResults()
     }
@@ -340,11 +396,12 @@ server <- function(input, output, session){
   #   
   output$alignment <- renderText({
     
-    #reset <- reactiveValues(sel = "") # select single rows
     
     if(is.null(input$Blast_Results_rows_selected)){
     } else {
+      
       clicks = input$Blast_Results_rows_selected
+      
       
       # make alignment
       Hsp_qseq = getNodeSet(blastresults(), '//Hit//Hit_hsps//Hsp//Hsp_qseq') %>% sapply(., xmlValue)
